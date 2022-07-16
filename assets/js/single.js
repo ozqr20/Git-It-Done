@@ -1,5 +1,14 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
 
+var getRepoName = function(){
+
+    var queryString = document.location.search;
+    var repoName = queryString.split('=')[1];
+    getRepoIssues(repoName);
+    repoNameEl.textContent = repoName;
+}
 var getRepoIssues = function(repo){
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
 
@@ -11,6 +20,9 @@ var getRepoIssues = function(repo){
                 // pass response data to dom function
                 displayIssues(data);
             })
+            if(response.headers.get("Link")){
+                displayWarning(repo); 
+            };
         } else {
             alert("There was a problem with your request!")
         }
@@ -54,4 +66,17 @@ var displayIssues = function(issues){
     }
 };
 
-getRepoIssues("facebook/react");
+var displayWarning  = function(repo){
+    limitWarningEl.textContent = "To see more than 30 issues, visit "
+
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on GitHub.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+     // It will load another page instead of the existing one
+    linkEl.setAttribute("target", "_blank"); 
+
+    // append to warning container
+    limitWarningEl.appendChild(linkEl);
+}
+
+getRepoName();
